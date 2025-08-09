@@ -114,6 +114,25 @@ app.get('/api/test-cloudinary', async (req, res) => {
     }
 });
 
+// Delete image from Cloudinary by public_id
+app.delete('/api/delete-image', async (req, res) => {
+    const { public_id } = req.body;
+    if (!public_id) {
+        return res.status(400).json({ error: 'public_id is required' });
+    }
+    try {
+        const result = await cloudinary.uploader.destroy(public_id);
+        if (result.result === 'ok') {
+            res.json({ message: 'Image deleted from Cloudinary', public_id });
+        } else {
+            res.status(404).json({ error: 'Image not found or already deleted', public_id });
+        }
+    } catch (error) {
+        console.error('Cloudinary delete error:', error);
+        res.status(500).json({ error: 'Failed to delete image from Cloudinary', details: error.message });
+    }
+});
+
 // Basic route
 app.get('/', (req, res) => {
   res.json({ message: 'Backend server is running!' });
